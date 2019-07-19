@@ -17,7 +17,7 @@ public class AgentController {
     }
 
     @GetMapping("/agent/{id}")
-    public JsonReturnTemplate<?> getInfo(@PathVariable String id) {
+    public JsonReturnTemplate getInfo(@PathVariable String id) {
         return JsonReturnTemplate.success();
     }
 }
