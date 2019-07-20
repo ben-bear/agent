@@ -32,6 +32,6 @@ public class ContentInfoImpl extends AbstractContentRepo {
         List<ContentInfo> contentInfoList = contentInfoService.query();
         return contentInfoList.stream().filter(contentInfo -> tag.equals(contentInfo.getTag()))
                 .collect(Collectors.toList());
-    }
+}
 
 }
