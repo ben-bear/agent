@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -22,9 +21,8 @@ public class ContentInfoController {
     @GetMapping("/content")
     @CrossOrigin("http://localhost:8000")
     public JsonReturnTemplate getContent() {
-        log.info("getting a content message");
+        log.info("GET: ./content");
         List<AgentInfo> list = contentInfoService.query();
-//        list.forEach();
         return JsonReturnTemplate.success(contentInfoService.query());
     }
 
@@ -34,9 +32,14 @@ public class ContentInfoController {
         return JsonReturnTemplate.success(contentInfoService.queryByTag(tag));
     }
 
+    @GetMapping(path = "/star/{id}")
+    public JsonReturnTemplate starContent(@PathVariable int id) {
+        return JsonReturnTemplate.success(contentInfoService.starContent(id));
+    }
+
     @PostMapping(path = "/content")
     @CrossOrigin("http://localhost:8000")
     public JsonReturnTemplate uploadContent(@RequestBody @Valid ContentInfo contentInfo) {
-        return JsonReturnTemplate.success(contentInfoService.save(contentInfo));
+        return JsonReturnTemplate.success(contentInfoService.saveByAutoIncreaseId(contentInfo));
     }
 }

@@ -1,5 +1,6 @@
 package com.commerce.agent.controller;
 
+import com.commerce.agent.dao.AgentInfo;
 import com.commerce.agent.service.AbstractAgentRepo;
 import com.commerce.agent.utils.JsonReturnTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +13,21 @@ public class AgentController {
     AbstractAgentRepo agentService;
 
     @PostMapping("/agent")
-    public JsonReturnTemplate<Boolean> saveInfo() {
-        return JsonReturnTemplate.success();
+    @CrossOrigin("http://localhost:8000")
+    public JsonReturnTemplate<Boolean> saveInfo(@RequestBody AgentInfo agentInfo) {
+        System.out.println(agentInfo);
+        return JsonReturnTemplate.success(agentService.saveInfo(agentInfo));
     }
 
     @GetMapping("/agent/{id}")
-    public JsonReturnTemplate getInfo(@PathVariable String id) {
-        return JsonReturnTemplate.success();
+    @CrossOrigin("http://localhost:8000")
+    public JsonReturnTemplate getInfo(@PathVariable int id) {
+        return JsonReturnTemplate.success(agentService.getInfoByID(id));
+    }
+
+    @GetMapping("/agent")
+    @CrossOrigin("http://localhost:8000")
+    public JsonReturnTemplate getInfo() {
+        return JsonReturnTemplate.success(agentService.query());
     }
 }

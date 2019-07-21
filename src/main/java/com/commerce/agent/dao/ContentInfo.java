@@ -9,12 +9,10 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-@Builder
 public class ContentInfo implements Serializable {
     int infoId;
     int agentId;
     int stars;
-    @Value("${''}")
     String content;
     boolean isWorthy;
     boolean isStared;

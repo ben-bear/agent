@@ -17,7 +17,6 @@ public abstract class AbstractAgentRepo<T> {
     public boolean saveInfo(T template) {
         mongoTemplate.save(template, COLLECTION_NAME);
         return true;
-//        System.out.println(template);
     }
 
     abstract public AgentInfo getInfoByID(int id);
