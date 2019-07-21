@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 
 @Data
@@ -15,5 +16,7 @@ public class ContentInfo implements Serializable {
     String content;
     boolean isWorthy;
     int count;
+    int agentIdWhoStared;
     List<String> tag;
+    HashMap<Integer, String> map;
 }

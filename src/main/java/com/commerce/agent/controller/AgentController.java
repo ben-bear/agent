@@ -6,6 +6,8 @@ import com.commerce.agent.utils.JsonReturnTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 
 @RestController
 public class AgentController {
@@ -13,7 +15,7 @@ public class AgentController {
     AbstractAgentRepo agentInfoService;
 
     @PostMapping("/info")
-    public JsonReturnTemplate<Boolean> saveInfo(AgentInfo agentInfo) {
+    public JsonReturnTemplate<Boolean> saveInfo(@RequestBody @Valid AgentInfo agentInfo) {
         return JsonReturnTemplate.success(agentInfoService.saveInfo(agentInfo));
     }
 
