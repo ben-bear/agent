@@ -4,7 +4,6 @@ import com.commerce.agent.dao.ContentInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
-import java.util.IntSummaryStatistics;
 import java.util.List;
 
 public abstract class AbstractContentRepo<T> {
@@ -13,7 +12,7 @@ public abstract class AbstractContentRepo<T> {
     @Autowired
     MongoTemplate mongoTemplate;
 
-    public abstract Boolean starContent(int contentId);
+    public abstract String getCollectionName();
 
     public abstract List<ContentInfo> queryByTag(String tag);
 
@@ -45,6 +44,31 @@ public abstract class AbstractContentRepo<T> {
 //        }
         save(contentInfo);
         return true;
+    }
+
+    public boolean isMatch(int contentId, int agentIdWhoStared){
+        ContentInfo contentInfo = getContentByID(contentId);
+        HashMap<Integer,String> map = contentInfo.getMap();
+        Date currentTime = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = formatter.format(currentTime);
+        if(map.containsKey(agentIdWhoStared) && dateString.equals(map.get(agentIdWhoStared))){
+            return false;
+        }
+        map.put(agentIdWhoStared,dateString);
+        contentInfo.setMap(map);
+        save(contentInfo);
+        return true;
+    }
+
+    public ContentInfo getContentByID(int contentId){
+        List<ContentInfo> contentInfoList = query();
+        for (ContentInfo info: contentInfoList) {
+            if (contentId == info.getAgentIdWhoStared()) {
+                return info;
+            }
+        }
+        return null;
     }
 
     public List<ContentInfo> query() {
