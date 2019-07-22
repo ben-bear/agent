@@ -32,8 +32,8 @@ public class JsonReturnTemplate<T> implements Serializable {
         serverTime = System.currentTimeMillis();
     }
 
-    public static <T> JsonReturnTemplate<T> success() {
-        return new JsonReturnTemplate<T>(SUCCESS, SUCCESS_MSG);
+    public static <T> JsonReturnTemplate<T> unSuccess(String msg) {
+        return new JsonReturnTemplate<T>(FAILED, msg);
     }
 
     public static <T> JsonReturnTemplate<T> success(T data) {

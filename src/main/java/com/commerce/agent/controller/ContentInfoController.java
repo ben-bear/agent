@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping
@@ -22,7 +24,12 @@ public class ContentInfoController {
     @CrossOrigin("http://localhost:8000")
     public JsonReturnTemplate getContent() {
         log.info("GET: ./content");
-        List<AgentInfo> list = contentInfoService.query();
+        List<ContentInfo> list = contentInfoService.query();
+        for (ContentInfo contentInfo: list) {
+            if (Objects.isNull(contentInfo.getTag())) {
+                contentInfo.setTag(new ArrayList<>());
+            }
+        }
         return JsonReturnTemplate.success(contentInfoService.query());
     }
 
@@ -33,7 +40,13 @@ public class ContentInfoController {
     }
 
     @GetMapping(path = "/star/{id}")
+    @CrossOrigin("http://localhost:8000")
     public JsonReturnTemplate starContent(@PathVariable int id) {
+        log.info("POST: /star/" + id);
+        // 现在默认都是1号经纪人点的赞
+        if (contentInfoService.isMatch(id, 1)) {
+            return JsonReturnTemplate.unSuccess("请不要一天点两次");
+        }
         return JsonReturnTemplate.success(contentInfoService.starContent(id));
     }
 

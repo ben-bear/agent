@@ -1,15 +1,19 @@
 package com.commerce.agent.impl;
 
 import com.commerce.agent.dao.ContentInfo;
+import com.commerce.agent.service.AbstractAgentRepo;
 import com.commerce.agent.service.AbstractContentRepo;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +34,9 @@ public class ContentInfoImpl extends AbstractContentRepo {
     AbstractContentRepo contentInfoService;
 
     @Autowired
+    AbstractAgentRepo abstractAgentRepo;
+
+    @Autowired
     MongoTemplate mongoTemplate;
 
     @Override
@@ -43,20 +50,31 @@ public class ContentInfoImpl extends AbstractContentRepo {
     public Boolean starContent(int contentId) {
         List<ContentInfo> contentInfos = contentInfoService.query();
         int stars = 0;
+        int agentId = 0;
         for (ContentInfo content: contentInfos) {
             if (contentId == content.getInfoId()) {
                 stars = content.getStars();
+                agentId = content.getAgentId();
                 stars++;
             }
         }
         upsert(contentId, stars);
+        abstractAgentRepo.upgradeLevel(agentId);
         return true;
     }
 
     @Override
     public List<ContentInfo> queryByTag(String tag) {
         List<ContentInfo> contentInfoList = contentInfoService.query();
-        return contentInfoList.stream().filter(contentInfo -> tag.equals(contentInfo.getTag()))
-                .collect(Collectors.toList());
+        List result = Lists.newArrayList();
+        contentInfoList.forEach(contentInfo -> {
+            if (Objects.nonNull(contentInfo.getTag())
+                    && !CollectionUtils.isEmpty(contentInfo.getTag())) {
+                if (contentInfo.getTag().contains(tag)) {
+                    result.add(contentInfo);
+                }
+            }
+        });
+        return result;
     }
 }
