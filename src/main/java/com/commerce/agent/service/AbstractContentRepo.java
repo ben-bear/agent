@@ -1,22 +1,20 @@
 package com.commerce.agent.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.commerce.agent.dao.ContentInfo;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.sun.deploy.util.StringUtils;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 public abstract class AbstractContentRepo<T> {
     private final static String COLLECTION_NAME = "content_info";
+    private static final MediaType JSONTYPE = MediaType.parse("application/json; charset=utf-8");
 
     @Autowired
     MongoTemplate mongoTemplate;
@@ -38,15 +36,23 @@ public abstract class AbstractContentRepo<T> {
         List<ContentInfo> list = query();
         IntSummaryStatistics stats = list.stream().mapToInt(ContentInfo::getInfoId).summaryStatistics();
         contentInfo.setInfoId(stats.getMax() + 1);
-        // TODO  对接算法策略组，set获取的评分与tag
-        Map map = Maps.newHashMap();
+        // TODO  对接算法策略组，set获取的评分与tag. Done!
+        JSONObject map = new JSONObject();
         map.put("content", contentInfo.getContent());
-        Response response = doPost("http://192.168.191.1:9003/lushiying", map);
-        JSONObject jsonObject = JSON.parseObject(response.toString());
-        System.out.println(jsonObject);
-//        if(Objects.nonNull(response)) {
-//            save(contentInfo);
-//        }
+        Response response = doPost("http://192.168.191.1:9003/lushi", map.toString());
+        try {
+            JSONObject body = JSONObject.parseObject(response.body().string());
+            Object isEffieve = body.get("class");
+            contentInfo.setWorthy(isEffieve.toString().equals("1"));
+            if ("".equals(body.get("tag"))) {
+                List<String> tags = Arrays.asList(StringUtils.splitString(body.get("tag").toString(), ","));
+                contentInfo.setTag(tags);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        save(contentInfo);
         return true;
     }
 
@@ -80,17 +86,17 @@ public abstract class AbstractContentRepo<T> {
         return mongoTemplate.findAll(ContentInfo.class, COLLECTION_NAME);
     }
 
-    private Response doPost(String url, Map<String, String> map) {
+    private Response doPost(String url, String jsonObject) {
         OkHttpClient mOkHttpClient = new OkHttpClient();
-        FormBody.Builder formBodyBuilder = new FormBody.Builder();
-        for (String key: map.keySet()) {
-            formBodyBuilder.add(key, map.get(key));
-        }
-//        formBodyBuilder.
-        FormBody formBody = formBodyBuilder.build();
+//        FormBody.Builder formBodyBuilder = new FormBody.Builder();
+//        for (String key: map.keySet()) {
+//            formBodyBuilder.add(key, map.get(key));
+//        }
+//        FormBody formBody = formBodyBuilder.build();
+        RequestBody body = RequestBody.create(JSONTYPE, jsonObject);
         Request request = new Request
                 .Builder()
-                .post(formBody)
+                .post(body)
                 .url(url)
                 .build();
         try {
