@@ -3,6 +3,7 @@ package com.commerce.agent.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.commerce.agent.dao.ContentInfo;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
@@ -40,12 +41,12 @@ public abstract class AbstractContentRepo<T> {
         // TODO  对接算法策略组，set获取的评分与tag
         Map map = Maps.newHashMap();
         map.put("content", contentInfo.getContent());
-        Response response = doPost("http://127.0.0.1/content", map);
+        Response response = doPost("http://192.168.191.1:9003/lushiying", map);
         JSONObject jsonObject = JSON.parseObject(response.toString());
-
-        if(Objects.nonNull(response)) {
-            save(contentInfo);
-        }
+        System.out.println(jsonObject);
+//        if(Objects.nonNull(response)) {
+//            save(contentInfo);
+//        }
         return true;
     }
 
@@ -85,6 +86,7 @@ public abstract class AbstractContentRepo<T> {
         for (String key: map.keySet()) {
             formBodyBuilder.add(key, map.get(key));
         }
+//        formBodyBuilder.
         FormBody formBody = formBodyBuilder.build();
         Request request = new Request
                 .Builder()

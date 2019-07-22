@@ -6,6 +6,6 @@ import java.util.List;
 
 @Data
 public class NlpInfo {
-    String isEffective;
+    List<String> isEffective;
     List<String> tags;
 }
